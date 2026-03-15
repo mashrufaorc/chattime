@@ -52,14 +52,25 @@ font-weight:600;
 
 /* ---------- RELIANCE BUTTON ---------- */
 
-.stats-button{
-border:1px solid black;
-background:white;
-padding:6px 12px;
-border-radius:999px;
-cursor:pointer;
-font-size:13px;
-transition:0.2s;
+.stats-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid black;
+  background: white;
+  padding: 6px 12px;
+  border-radius: 999px;
+  cursor: pointer;
+  font-size: 13px;
+  transition: 0.2s;
+}
+
+
+.btn-logo {
+  width: 18px;
+  height: 18px;
+  object-fit: contain;
+  margin-right: 6px;
 }
 
 .stats-button.active{
@@ -275,7 +286,10 @@ color:#4b5563;
 
 <div class="header">
 <div class="header-title">ChatGPT</div>
-<button class="stats-button" id="openPanel">Reliance</button>
+<button class="stats-button" id="openPanel">
+  <img src="logo.png" class="btn-logo" alt="">
+  Reliance
+</button>
 </div>
 
 <div class="chat">
