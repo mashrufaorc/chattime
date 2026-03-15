@@ -4,9 +4,8 @@
 <meta charset="UTF-8">
 <title>ChatGPT Reliance Dashboard</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
 <style>
-
+/* Your existing CSS remains exactly the same */
 *{box-sizing:border-box;}
 
 :root{
@@ -23,8 +22,6 @@ background:#f7f7f8;
 display:flex;
 justify-content:center;
 }
-
-
 
 /* ---------- MAIN APP ---------- */
 
@@ -67,7 +64,6 @@ font-weight:600;
   transition: 0.2s;
 }
 
-
 .btn-logo {
   width: 18px;
   height: 18px;
@@ -86,6 +82,7 @@ color:var(--rose);
 flex:1;
 background:#f7f7f8;
 padding:20px;
+overflow-y: auto;
 }
 
 .message{
@@ -93,6 +90,7 @@ background:#f3f4f6;
 padding:12px;
 border-radius:10px;
 max-width:70%;
+margin-bottom: 10px;
 }
 
 .input-bar{
@@ -405,7 +403,6 @@ color:var(--rose);
 font-size:12px;
 color:#4b5563;
 }
-
 </style>
 </head>
 
@@ -452,19 +449,19 @@ color:#4b5563;
 <div class="header">
 <div class="header-title">ChatGPT</div>
 <button class="stats-button" id="openPanel">
-  <img src="logo.png" class="btn-logo" alt="">
+  <span style="margin-right: 6px;">📊</span>
   Reliance
 </button>
 </div>
 
-<div class="chat">
-<div class="message">
-Alright! Here’s something fresh and fascinating: 🌱 Scientists just discovered a plant that glows faintly in the dark — naturally.
-</div>
+<div class="chat" id="chat-area">
+  <div class="message">
+  👋 Welcome! Type a message below to analyze your AI interaction patterns.
+  </div>
 </div>
 
 <div class="input-bar">
-<input placeholder="Send a message...">
+<input id="message-input" placeholder="Send a message..." onkeypress="handleKeyPress(event)">
 </div>
 
 </div>
@@ -486,147 +483,97 @@ Reliance Insights
 </div>
 
 <!-- DASHBOARD -->
-
 <div class="page active" id="dashboardPage">
+  <p style="font-size:12px;color:#6b7280;">
+    This dashboard shows how your prompts distribute across cognitive categories.
+  </p>
 
-<p style="font-size:12px;color:#6b7280;">
-This dashboard summarizes how work in the current session may be distributed between routine AI-assisted tasks and higher-level cognitive work carried out by you.
-</p>
+  <div class="section-title">Lower-Order Tasks</div>
+  <div class="charts-grid">
+    <div class="chart-card">
+      <div class="chart-title" id="repetitive-title">Repetitive Tasks — 0%</div>
+      <canvas id="chart1"></canvas>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title" id="information-title">Information Retrieval — 0%</div>
+      <canvas id="chart2"></canvas>
+    </div>
+  </div>
 
-<div class="section-title">Lower-Order Tasks</div>
-
-<div class="charts-grid">
-
-<div class="chart-card">
-<div class="chart-title">Repetitive Tasks — 41%</div>
-<canvas id="chart1"></canvas>
-</div>
-
-<div class="chart-card">
-<div class="chart-title">Information Retrieval — 19%</div>
-<canvas id="chart2"></canvas>
-</div>
-
-</div>
-
-<div class="section-title">Higher-Order Thinking</div>
-
-<div class="charts-grid">
-
-<div class="chart-card">
-<div class="chart-title">Problem Solving — 17%</div>
-<canvas id="chart3"></canvas>
-</div>
-
-<div class="chart-card">
-<div class="chart-title">Critical Thinking — 13%</div>
-<canvas id="chart4"></canvas>
-</div>
-
-<div class="chart-card">
-<div class="chart-title">Creativity — 10%</div>
-<canvas id="chart5"></canvas>
-</div>
-
-</div>
-
+  <div class="section-title">Higher-Order Thinking</div>
+  <div class="charts-grid">
+    <div class="chart-card">
+      <div class="chart-title" id="problem-title">Problem Solving — 0%</div>
+      <canvas id="chart3"></canvas>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title" id="critical-title">Critical Thinking — 0%</div>
+      <canvas id="chart4"></canvas>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title" id="creativity-title">Creativity — 0%</div>
+      <canvas id="chart5"></canvas>
+    </div>
+  </div>
 </div>
 
 <!-- METRICS -->
-
 <div class="page" id="metricsPage">
+  <div class="metric-box">
+    <div class="metric-title">AI Automation Tasks</div>
+    <div class="metric-value" id="automation-value">0%</div>
+    <div class="metric-sub">Tasks primarily handled by AI</div>
+  </div>
 
-<div class="metric-box">
-<div class="metric-title">AI Automation Tasks</div>
-<div class="metric-value">60%</div>
-<div class="metric-sub">Tasks primarily handled by AI</div>
-</div>
+  <div class="metric-box">
+    <div class="metric-title">Your Cognitive Tasks</div>
+    <div class="metric-value" id="cognitive-value">0%</div>
+    <div class="metric-sub">Tasks driven by your reasoning</div>
+  </div>
 
-<div class="metric-box">
-<div class="metric-title">Your Cognitive Tasks</div>
-<div class="metric-value">40%</div>
-<div class="metric-sub">Tasks driven by your reasoning and judgement</div>
-</div>
+  <div class="metric-box">
+    <div class="metric-title">Cognitive Offloading Index</div>
+    <div class="metric-value" id="coi-value">0 / 100</div>
+    <div class="metric-sub" id="risk-level">Risk Level: Not enough data</div>
+  </div>
 
-<div class="metric-box">
-<div class="metric-title">Cognitive Offloading Index</div>
-<div class="metric-value">52 / 100</div>
-<div class="metric-sub">Risk Level: Moderate</div>
-</div>
-
-<div class="metric-box">
-<div class="metric-title">Task Distribution</div>
-
-<table>
-<tr>
-<th>Category</th>
-<th>%</th>
-<th>Cognitive Level</th>
-</tr>
-
-<tr>
-<td>Repetitive Tasks</td>
-<td>41%</td>
-<td>Low</td>
-</tr>
-
-<tr>
-<td>Information Retrieval</td>
-<td>19%</td>
-<td>Low</td>
-</tr>
-
-<tr>
-<td>Problem Solving</td>
-<td>17%</td>
-<td>Medium</td>
-</tr>
-
-<tr>
-<td>Critical Thinking</td>
-<td>13%</td>
-<td>High</td>
-</tr>
-
-<tr>
-<td>Creativity</td>
-<td>10%</td>
-<td>Highest</td>
-</tr>
-
-</table>
-
-</div>
-
+  <div class="metric-box">
+    <div class="metric-title">Task Distribution</div>
+    <table>
+      <tr><th>Category</th><th>%</th><th>Cognitive Level</th></tr>
+      <tr><td>Repetitive Tasks</td><td id="table-repetitive">0%</td><td>Low</td></tr>
+      <tr><td>Information Retrieval</td><td id="table-information">0%</td><td>Low</td></tr>
+      <tr><td>Problem Solving</td><td id="table-problem">0%</td><td>Medium</td></tr>
+      <tr><td>Critical Thinking</td><td id="table-critical">0%</td><td>High</td></tr>
+      <tr><td>Creativity</td><td id="table-creativity">0%</td><td>Highest</td></tr>
+    </table>
+  </div>
 </div>
 
 <!-- FEEDBACK -->
-
 <div class="page" id="feedbackPage">
+  <div class="feedback-block">
+    <div class="feedback-title">Recommendation</div>
+    <div class="feedback-text" id="recommendation-text">
+      Start by sending some messages to see your AI usage patterns.
+    </div>
+  </div>
 
-<div class="feedback-block">
-<div class="feedback-title">Recommendation</div>
-<div class="feedback-text">
-You frequently use AI for reasoning and problem-solving tasks. Consider attempting an initial solution yourself before prompting AI for assistance.
-</div>
-</div>
+  <div class="feedback-block">
+    <div class="feedback-title">Suggested Actions</div>
+    <div class="feedback-text" id="suggested-actions">
+      • Type a message in the chat to begin analysis.<br>
+      • Try different types of prompts to see how they're categorized.<br>
+      • Open this panel anytime to check your metrics.
+    </div>
+  </div>
 
-<div class="feedback-block">
-<div class="feedback-title">Suggested Actions</div>
-<div class="feedback-text">
-• Try outlining your reasoning before asking AI to generate a full answer.<br>
-• Use AI primarily for editing, summarizing, or refining ideas.<br>
-• Treat AI responses as reference points rather than final solutions.
-</div>
-</div>
-
-<div class="feedback-block">
-<div class="feedback-title">Why This Matters</div>
-<div class="feedback-text">
-Research in cognitive science suggests that frequent cognitive offloading to external tools can reduce engagement with memory and problem-solving processes. Monitoring AI usage helps ensure these tools support productivity without replacing core cognitive effort.
-</div>
-</div>
-
+  <div class="feedback-block">
+    <div class="feedback-title">Why This Matters</div>
+    <div class="feedback-text">
+      Research suggests that frequent cognitive offloading can reduce engagement with memory and problem-solving. Monitoring helps ensure AI tools support rather than replace cognitive effort.
+    </div>
+  </div>
 </div>
 
 </div>
@@ -634,85 +581,270 @@ Research in cognitive science suggests that frequent cognitive offloading to ext
 </div>
 
 <script>
+// Global variables
+let charts = {};
+let currentData = {
+  percentages: {
+    Repetitive: 0,
+    Information: 0,
+    ProblemSolving: 0,
+    CriticalThinking: 0,
+    Creativity: 0
+  },
+  automation: 0,
+  thinking: 0,
+  coi: 0
+};
 
-let charts={}
+// Panel elements
+const backdrop = document.getElementById("panelBackdrop");
+const panel = document.getElementById("panel");
+const button = document.getElementById("openPanel");
+const closeBtn = document.getElementById("closePanel");
 
-function createPie(id,ai){
+// Panel open
+button.onclick = () => {
+  backdrop.style.display = "flex";
+  setTimeout(() => panel.classList.add("open"), 10);
+  button.classList.add("active");
+  updateAllCharts(); // Refresh charts when opening panel
+};
 
-const you=100-ai
-const ctx=document.getElementById(id).getContext("2d")
+// Panel close
+closeBtn.onclick = () => {
+  panel.classList.remove("open");
+  button.classList.remove("active");
+  setTimeout(() => backdrop.style.display = "none", 200);
+};
 
-charts[id]=new Chart(ctx,{
-type:"pie",
-data:{
-labels:["You","AI"],
-datasets:[{
-data:[you,ai],
-backgroundColor:["#c08497","#9ca3af"],
-borderWidth:0
-}]
-},
-options:{
-maintainAspectRatio:true,
-plugins:{legend:{labels:{font:{size:11}}}}
+backdrop.onclick = (e) => {
+  if (e.target === backdrop) {
+    panel.classList.remove("open");
+    button.classList.remove("active");
+    setTimeout(() => backdrop.style.display = "none", 200);
+  }
+};
+
+// Tab switching
+const tabs = document.querySelectorAll(".tab");
+const pages = {
+  dashboard: document.getElementById("dashboardPage"),
+  metrics: document.getElementById("metricsPage"),
+  feedback: document.getElementById("feedbackPage")
+};
+
+tabs.forEach(tab => {
+  tab.onclick = () => {
+    tabs.forEach(t => t.classList.remove("active"));
+    tab.classList.add("active");
+    Object.values(pages).forEach(p => p.classList.remove("active"));
+    pages[tab.dataset.tab].classList.add("active");
+  };
+});
+
+// Handle Enter key in input
+function handleKeyPress(event) {
+  if (event.key === "Enter") {
+    sendMessage();
+  }
 }
-})
+
+// Send message to backend
+async function sendMessage() {
+  const input = document.getElementById("message-input");
+  const prompt = input.value.trim();
+  
+  if (!prompt) return;
+  
+  // Clear input
+  input.value = "";
+  
+  // Add user message to chat
+  addMessage(prompt, "user");
+  
+  try {
+    // Show loading message
+    const loadingMsg = addMessage("Analyzing...", "ai");
+    
+    // Send to backend
+    const response = await fetch("http://localhost:5001/analyze", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ prompts: [prompt] })
+    });
+    
+    // Remove loading message
+    loadingMsg.remove();
+    
+    if (!response.ok) {
+      throw new Error(`Server error: ${response.status}`);
+    }
+    
+    const data = await response.json();
+    
+    // Add AI response
+    addMessage(data.answer || "Analysis complete!", "ai");
+    
+    // Update data
+    currentData = {
+      percentages: data.percentages,
+      automation: data.automation,
+      thinking: data.thinking,
+      coi: data.coi
+    };
+    
+    // Update UI if panel is open
+    if (panel.classList.contains("open")) {
+      updateAllCharts();
+    }
+    
+  } catch (error) {
+    console.error("Error:", error);
+    addMessage("Sorry, I encountered an error. Please try again.", "ai");
+  }
 }
 
-function loadCharts(){
-
-createPie("chart1",41)
-createPie("chart2",19)
-createPie("chart3",17)
-createPie("chart4",13)
-createPie("chart5",10)
-
+// Add message to chat
+function addMessage(text, sender) {
+  const chatArea = document.getElementById("chat-area");
+  const messageDiv = document.createElement("div");
+  messageDiv.className = "message";
+  messageDiv.style.marginLeft = sender === "user" ? "auto" : "0";
+  messageDiv.style.backgroundColor = sender === "user" ? "#e3f2fd" : "#f3f4f6";
+  messageDiv.innerText = text;
+  chatArea.appendChild(messageDiv);
+  chatArea.scrollTop = chatArea.scrollHeight;
+  return messageDiv;
 }
 
-const backdrop=document.getElementById("panelBackdrop")
-const panel=document.getElementById("panel")
-const button=document.getElementById("openPanel")
-
-button.onclick=()=>{
-backdrop.style.display="flex"
-setTimeout(()=>panel.classList.add("open"),10)
-button.classList.add("active")
-loadCharts()
+// Create pie chart
+function createPieChart(canvasId, aiPercentage, updateTitle = false, titleElementId = null) {
+  const ctx = document.getElementById(canvasId).getContext("2d");
+  
+  // Destroy existing chart if it exists
+  if (charts[canvasId]) {
+    charts[canvasId].destroy();
+  }
+  
+  const youPercentage = 100 - aiPercentage;
+  
+  charts[canvasId] = new Chart(ctx, {
+    type: "pie",
+    data: {
+      labels: ["AI", "You"],
+      datasets: [{
+        data: [aiPercentage, youPercentage],
+        backgroundColor: ["#9ca3af", "#c08497"],
+        borderWidth: 0
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: true,
+      plugins: {
+        legend: {
+          labels: { font: { size: 11 } }
+        },
+        tooltip: {
+          callbacks: {
+            label: function(context) {
+              return `${context.label}: ${context.raw}%`;
+            }
+          }
+        }
+      }
+    }
+  });
+  
+  // Update title if needed
+  if (titleElementId) {
+    const titleElement = document.getElementById(titleElementId);
+    if (titleElement) {
+      const categoryName = titleElementId.replace('-title', '').replace('-', ' ');
+      titleElement.innerHTML = `${categoryName} — ${aiPercentage}%`;
+    }
+  }
 }
 
-document.getElementById("closePanel").onclick=()=>{
-panel.classList.remove("open")
-button.classList.remove("active")
-setTimeout(()=>backdrop.style.display="none",200)
+// Update all charts and metrics
+function updateAllCharts() {
+  const p = currentData.percentages;
+  
+  // Update dashboard charts
+  createPieChart("chart1", p.Repetitive || 0, true, "repetitive-title");
+  createPieChart("chart2", p.Information || 0, true, "information-title");
+  createPieChart("chart3", p["Problem Solving"] || 0, true, "problem-title");
+  createPieChart("chart4", p["Critical Thinking"] || 0, true, "critical-title");
+  createPieChart("chart5", p.Creativity || 0, true, "creativity-title");
+  
+  // Update metrics
+  document.getElementById("automation-value").innerText = currentData.automation + "%";
+  document.getElementById("cognitive-value").innerText = currentData.thinking + "%";
+  document.getElementById("coi-value").innerText = currentData.coi + " / 100";
+  
+  // Update risk level
+  const riskElement = document.getElementById("risk-level");
+  if (currentData.coi <= 30) riskElement.innerText = "Risk Level: Healthy 🟢";
+  else if (currentData.coi <= 60) riskElement.innerText = "Risk Level: Moderate 🟡";
+  else if (currentData.coi <= 80) riskElement.innerText = "Risk Level: High 🟠";
+  else riskElement.innerText = "Risk Level: Critical 🔴";
+  
+  // Update table
+  document.getElementById("table-repetitive").innerText = p.Repetitive + "%";
+  document.getElementById("table-information").innerText = p.Information + "%";
+  document.getElementById("table-problem").innerText = p["Problem Solving"] + "%";
+  document.getElementById("table-critical").innerText = p["Critical Thinking"] + "%";
+  document.getElementById("table-creativity").innerText = p.Creativity + "%";
+  
+  // Update recommendations based on COI
+  updateRecommendations(currentData.coi, p);
 }
 
-backdrop.onclick=(e)=>{
-if(e.target===backdrop){
-panel.classList.remove("open")
-button.classList.remove("active")
-setTimeout(()=>backdrop.style.display="none",200)
+// Update recommendations based on COI
+function updateRecommendations(coi, percentages) {
+  const recElement = document.getElementById("recommendation-text");
+  const actionsElement = document.getElementById("suggested-actions");
+  
+  if (coi < 30) {
+    recElement.innerText = "Great balance! You're using AI as a tool while maintaining active cognitive engagement.";
+    actionsElement.innerHTML = `
+      • Continue your current approach.<br>
+      • Use AI for tasks where it adds clear value.<br>
+      • Share your strategies with others.
+    `;
+  } else if (coi < 60) {
+    recElement.innerText = "You have a moderate reliance on AI. Consider being more selective about which tasks you automate.";
+    actionsElement.innerHTML = `
+      • Try solving problems yourself before asking AI.<br>
+      • Use AI for information gathering, but synthesize yourself.<br>
+      • Challenge AI's responses and verify facts.
+    `;
+  } else if (coi < 80) {
+    recElement.innerText = "You're heavily relying on AI for cognitive tasks. This may impact your independent problem-solving skills.";
+    actionsElement.innerHTML = `
+      • Reduce AI use for complex reasoning tasks.<br>
+      • Practice solving problems without AI first.<br>
+      • Use AI only for review, not initial generation.
+    `;
+  } else {
+    recElement.innerText = "Critical overreliance detected. Consider reducing AI usage to maintain cognitive abilities.";
+    actionsElement.innerHTML = `
+      • Take breaks from AI for complex tasks.<br>
+      • Challenge yourself with cognitive exercises.<br>
+      • Use AI only for factual queries, not reasoning.
+    `;
+  }
 }
-}
 
-const tabs=document.querySelectorAll(".tab")
-const pages={
-dashboard:document.getElementById("dashboardPage"),
-metrics:document.getElementById("metricsPage"),
-feedback:document.getElementById("feedbackPage")
-}
-
-tabs.forEach(tab=>{
-tab.onclick=()=>{
-
-tabs.forEach(t=>t.classList.remove("active"))
-tab.classList.add("active")
-
-Object.values(pages).forEach(p=>p.classList.remove("active"))
-pages[tab.dataset.tab].classList.add("active")
-
-}
-})
-
+// Initialize with default charts
+document.addEventListener("DOMContentLoaded", function() {
+  // Create default charts with 0 values
+  createPieChart("chart1", 0, true, "repetitive-title");
+  createPieChart("chart2", 0, true, "information-title");
+  createPieChart("chart3", 0, true, "problem-title");
+  createPieChart("chart4", 0, true, "critical-title");
+  createPieChart("chart5", 0, true, "creativity-title");
+});
 </script>
 
 </body>

@@ -1,44 +1,82 @@
-import streamlit as st
+from flask import Flask, request, jsonify
+from flask_cors import CORS
 from classifier import classify_prompts
 from metrics import compute_metrics
+from groq import Groq
+import os
 
-st.title("ChatTime — AI Dependency Analyzer")
+# Initialize Groq client
+api_key = os.getenv("GROQ_API_KEY")
+if api_key:
+    api_key = api_key.strip()
+    print(f"API Key loaded successfully (length: {len(api_key)})")
+else:
+    print("ERROR: GROQ_API_KEY not set!")
+    exit(1)
 
-st.write(
-"""
-Analyze how much cognitive work you outsource to AI.
-Inspired by Bloom's Taxonomy and Cognitive Offloading research.
-"""
-)
+client = Groq(api_key=api_key)
 
-prompt_history = st.text_area(
-"Paste your ChatGPT prompt history (one prompt per line):"
-)
+# Initialize Flask
+app = Flask(__name__)
+CORS(app, origins=["http://localhost:3000", "http://127.0.0.1:3000"])
 
-if st.button("Analyze Session"):
+@app.route("/analyze", methods=["POST", "OPTIONS"])
+def analyze():
+    # Handle preflight requests
+    if request.method == "OPTIONS":
+        return "", 200
+        
+    try:
+        data = request.json
+        prompts = data.get("prompts", [])
 
-    prompts = [p.strip() for p in prompt_history.split("\n") if p.strip()]
+        if not prompts:
+            return jsonify({"error": "No prompts provided"}), 400
 
-    if len(prompts) == 0:
-        st.warning("Please enter prompts.")
-    else:
+        prompt_text = prompts[0]
 
+        # Get ACTUAL AI answer to the user's prompt
+        ai_response = client.chat.completions.create(
+            model="llama-3.1-8b-instant",
+            messages=[{"role": "user", "content": prompt_text}]
+        )
+        answer = ai_response.choices[0].message.content
+
+        # Also classify the prompt for metrics
         categories = classify_prompts(prompts)
         results = compute_metrics(categories)
 
-        st.subheader("Session Metrics")
-        st.write(f"Total Prompts: {results['total']}")
-        st.write(results["percentages"])
-        st.subheader("Cognitive Offloading Index")
-        st.metric("COI Score", f"{results['coi']:.1f}/100")
-        st.subheader("Automation vs Cognitive Work")
-        st.pyplot(results["chart"])
-        st.subheader("AI Usage Insight")
-        st.write(
-        f"""
-        Your session shows {results['coi']:.1f}% cognitive offloading.
+        # Format response
+        percentages = results["percentages"]
+        
+        # Calculate automation and thinking totals
+        automation = percentages["Repetitive"] + percentages["Information"]
+        thinking = percentages["Problem Solving"] + percentages["Critical Thinking"] + percentages["Creativity"]
 
-        Higher scores indicate greater reliance on AI for complex reasoning tasks.
-        """
-        )
+        response_data = {
+            "answer": answer,  # This is the actual AI response
+            "automation": round(automation),
+            "thinking": round(thinking),
+            "coi": round(results["coi"], 1),
+            "percentages": {
+                "Repetitive": round(percentages["Repetitive"]),
+                "Information": round(percentages["Information"]),
+                "Problem Solving": round(percentages["Problem Solving"]),
+                "Critical Thinking": round(percentages["Critical Thinking"]),
+                "Creativity": round(percentages["Creativity"])
+            },
+            "total_prompts": results["total"]
+        }
+        
+        print(f"Prompt: {prompt_text[:50]}...")
+        print(f"Response sent with answer length: {len(answer)}")
+        return jsonify(response_data)
+    
+    except Exception as e:
+        print(f"Error in analyze endpoint: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        return jsonify({"error": str(e)}), 500
 
+if __name__ == "__main__":
+    app.run(port=5001, debug=True)
