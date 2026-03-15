@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>ChatGPT + Reliance</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #f7f7f8;
+      color: #111827;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+    }
+
+    .app {
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      max-width: 1100px;
+      height: 100vh;
+      background: #ffffff;
+      border-left: 1px solid #e5e7eb;
+      border-right: 1px solid #e5e7eb;
+    }
+
+    /* Header */
+
+    .header {
+      height: 56px;
+      padding: 0 16px;
+      border-bottom: 1px solid #e5e7eb;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: #ffffff;
+    }
+
+    .header-title {
+      font-weight: 600;
+      font-size: 15px;
+      color: #111827;
+    }
+
+    .stats-button {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: white;
+      border: none;
+      color: black;
+      padding: 6px 12px;
+      border-radius: 999px;
+      font-size: 13px;
+      cursor: pointer;
+    }
+
+    .stats-button:hover {
+      background: white;
+    }
+
+    .btn-logo {
+      width: 18px;
+      height: 18px;
+      object-fit: contain;
+    }
+
+    /* Chat area */
+
+    .chat {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px 24px;
+      background: #f7f7f8;
+    }
+
+    .message-row {
+      display: flex;
+      margin-bottom: 16px;
+    }
+
+    .message-row.assistant {
+      justify-content: flex-start;
+    }
+
+    .message-row.user {
+      justify-content: flex-end;
+    }
+
+    .message-bubble {
+      max-width: 70%;
+      padding: 12px 14px;
+      border-radius: 12px;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .assistant .message-bubble {
+      background: #f3f4f6;
+      color: #111827;
+    }
+
+    .user .message-bubble {
+      background: #111827;
+      color: #ffffff;
+    }
+
+    .input-bar {
+      padding: 12px 16px 16px;
+      border-top: 1px solid #e5e7eb;
+      background: #ffffff;
+    }
+
+    .input-inner {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      border-radius: 999px;
+      border: 1px solid #d1d5db;
+      padding: 6px 10px;
+      background: #f9fafb;
+    }
+
+    .input-inner input {
+      flex: 1;
+      border: none;
+      background: transparent;
+      font-size: 14px;
+      outline: none;
+      color: #111827;
+    }
+
+    .input-inner button {
+      background: #111827;
+      border: none;
+      color: #ffffff;
+      padding: 6px 12px;
+      border-radius: 999px;
+      font-size: 13px;
+      cursor: pointer;
+    }
+
+    .input-inner button:hover {
+      background: #000000;
+    }
+
+    /* Slide-in Reliance panel */
+
+    .panel-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.25);
+      display: none;
+      justify-content: flex-end;
+      z-index: 1000;
+    }
+
+    .panel {
+      width: 380px;
+      max-width: 90vw;
+      height: 100%;
+      background: #ffffff;
+      box-shadow: -8px 0 30px rgba(15, 23, 42, 0.25);
+      display: flex;
+      flex-direction: column;
+      transform: translateX(100%);
+      transition: transform 0.25s ease-out;
+    }
+
+    .panel.open {
+      transform: translateX(0);
+    }
+
+    .panel-header {
+      padding: 16px 16px 8px;
+      border-bottom: 1px solid #e5e7eb;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .panel-title {
+      font-size: 15px;
+      font-weight: 600;
+      color: #111827;
+    }
+
+    .panel-close {
+      background: transparent;
+      border: none;
+      font-size: 20px;
+      color: #6b7280;
+      cursor: pointer;
+    }
+
+    .panel-body {
+      padding: 12px 16px 16px;
+      overflow-y: auto;
+      flex: 1;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .tab {
+      border: none;
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      cursor: pointer;
+      background: #f3f4f6;
+      color: #374151;
+    }
+
+    .tab.active {
+      background: #111827;
+      color: #ffffff;
+    }
+
+    .page {
+      display: none;
+      font-size: 13px;
+      color: #111827;
+    }
+
+    .page.active {
+      display: block;
+    }
+
+    .charts-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+
+    .chart-card {
+      background: #f9fafb;
+      border-radius: 10px;
+      padding: 10px;
+      border: 1px solid #e5e7eb;
+    }
+
+    .chart-title {
+      font-size: 12px;
+      margin-bottom: 4px;
+      color: #4b5563;
+      text-align: center;
+    }
+
+    canvas {
+      width: 100% !important;
+      height: 150px !important;
+    }
+
+    .metrics-list p {
+      margin: 4px 0;
+    }
+
+    .feedback-block {
+      background: #f9fafb;
+      border-radius: 8px;
+      border: 1px solid #e5e7eb;
+      padding: 10px;
+      margin-bottom: 8px;
+    }
+
+    .feedback-title {
+      font-weight: 600;
+      margin-bottom: 4px;
+      font-size: 13px;
+    }
+
+    .feedback-text {
+      font-size: 12px;
+      color: #4b5563;
+    }
+
+    .feedback-button {
+      margin-top: 10px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid #111827;
+      background: #111827;
+      color: #ffffff;
+      font-size: 12px;
+      cursor: pointer;
+    }
+
+    .feedback-button:hover {
+      background: #000000;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="app">
+    <div class="header">
+      <div class="header-title">ChatGPT</div>
+      <button class="stats-button" id="openPanel">
+        <img src="logo.png" class="btn-logo" alt="">
+        Reliance
+      </button>
+    </div>
+
+    <div class="chat" id="chat">
+      <div class="message-row assistant">
+        <div class="message-bubble">
+          Alright! Here’s something fresh and fascinating: 🌱 Scientists just discovered a plant that glows faintly in the dark — naturally...
+        </div>
+      </div>
+    </div>
+
+    <div class="input-bar">
+      <div class="input-inner">
+        <input id="userInput" placeholder="Send a message..." />
+        <button id="sendBtn">Send</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Slide-in Reliance Panel -->
+  <div class="panel-backdrop" id="panelBackdrop">
+    <div class="panel" id="panel">
+      <div class="panel-header">
+        <div class="panel-title">Reliance insights</div>
+        <button class="panel-close" id="closePanel">&times;</button>
+      </div>
+      <div class="panel-body">
+        <div class="tabs">
+          <button class="tab active" data-tab="dashboard">Dashboard</button>
+          <button class="tab" data-tab="metrics">Metrics</button>
+          <button class="tab" data-tab="feedback">Feedback</button>
+        </div>
+
+        <!-- Dashboard -->
+        <div class="page active" id="dashboardPage">
+          <p style="font-size:12px;color:#6b7280;margin-bottom:8px;">
+            Quick view of how much you and the AI are contributing across different thinking skills.
+          </p>
+          <div class="charts-grid">
+            <div class="chart-card">
+              <div class="chart-title">facts about your critical thinking</div>
+              <canvas id="chartCT"></canvas>
+            </div>
+            <div class="chart-card">
+              <div class="chart-title">facts about your problem-solving</div>
+              <canvas id="chartPS"></canvas>
+            </div>
+            <div class="chart-card">
+              <div class="chart-title">facts about your reasoning</div>
+              <canvas id="chartRS"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <!-- Metrics -->
+        <div class="page" id="metricsPage">
+          <p style="font-size:12px;color:#6b7280;margin-bottom:8px;">
+            Session scores showing how much you vs. the AI are driving each cognitive dimension.
+          </p>
+          <div class="metrics-list" id="metricsContent"></div>
+        </div>
+
+        <!-- Feedback -->
+        <div class="page" id="feedbackPage">
+          <p style="font-size:12px;color:#6b7280;margin-bottom:8px;">
+            Suggestions to help you rely on AI more intentionally.
+          </p>
+          <div id="feedbackBlocks"></div>
+          <button class="feedback-button" id="refreshFeedback">Refresh feedback</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let charts = {};
+
+    function randomSplit() {
+      const user = Math.floor(Math.random() * 41) + 30; // 30–70
+      const ai = 100 - user;
+      return { user, ai };
+    }
+
+    // Chat basics
+    const chat = document.getElementById('chat');
+    const input = document.getElementById('userInput');
+    const sendBtn = document.getElementById('sendBtn');
+
+    function addMessage(text, role) {
+      const row = document.createElement('div');
+      row.className = 'message-row ' + role;
+
+      const bubble = document.createElement('div');
+      bubble.className = 'message-bubble';
+      bubble.textContent = text;
+
+      row.appendChild(bubble);
+      chat.appendChild(row);
+      chat.scrollTop = chat.scrollHeight;
+    }
+
+    sendBtn.onclick = () => {
+      const text = input.value.trim();
+      if (!text) return;
+      addMessage(text, 'user');
+      input.value = '';
+
+      setTimeout(() => {
+        addMessage("This is a mock reply. Keep chatting!", 'assistant');
+      }, 400);
+    };
+
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') sendBtn.click();
+    });
+
+    // Charts
+    function createPieChart(id, userVal, aiVal) {
+      if (charts[id]) charts[id].destroy();
+      const ctx = document.getElementById(id).getContext('2d');
+      charts[id] = new Chart(ctx, {
+        type: 'pie',
+        data: {
+          labels: ['You', 'AI'],
+          datasets: [{
+            data: [userVal, aiVal],
+            backgroundColor: ['#ff7eb6', '#9ca3af'],
+            borderWidth: 0
+          }]
+        },
+        options: {
+          plugins: {
+            legend: {
+              labels: { color: '#4b5563', font: { size: 11 } }
+            }
+          }
+        }
+      });
+    }
+
+    // Metrics
+    function updateMetricsPage(ct, ps, rs) {
+      const el = document.getElementById('metricsContent');
+      el.innerHTML = `
+        <p><strong>Critical Thinking:</strong> You ${ct.user}% vs AI ${ct.ai}%</p>
+        <p><strong>Problem Solving:</strong> You ${ps.user}% vs AI ${ps.ai}%</p>
+        <p><strong>Reasoning:</strong> You ${rs.user}% vs AI ${rs.ai}%</p>
+      `;
+    }
+
+    // Feedback suggestions
+    function suggestionForDimension(name, split) {
+      const ai = split.ai;
+      const you = split.user;
+
+      if (ai >= 65) {
+        if (name === 'reasoning') {
+          return "You’re leaning on AI for reasoning. Try writing your own explanation first, then ask AI to critique or refine it.";
+        }
+        if (name === 'problem-solving') {
+          return "You’re delegating a lot of problem solving to AI. Before asking for a solution, outline your own steps or plan.";
+        }
+        if (name === 'critical thinking') {
+          return "AI is doing much of the critical thinking. Try asking AI to challenge your assumptions instead of giving direct answers.";
+        }
+      } else if (you >= 65) {
+        if (name === 'reasoning') {
+          return "You’re leading the reasoning yourself. You can use AI to explore alternative perspectives or edge cases you might miss.";
+        }
+        if (name === 'problem-solving') {
+          return "You’re driving problem solving. Try using AI as a second pair of eyes to stress-test your approach.";
+        }
+        if (name === 'critical thinking') {
+          return "You’re doing most of the critical thinking. Ask AI to play devil’s advocate to strengthen your arguments.";
+        }
+      } else {
+        return "You and the AI are sharing this fairly evenly. Try being explicit about what you want to own vs. what you want AI to handle.";
+      }
+    }
+
+    function updateFeedbackPage(ct, ps, rs) {
+      const container = document.getElementById('feedbackBlocks');
+      container.innerHTML = '';
+
+      const blocks = [
+        { title: 'Critical thinking', text: suggestionForDimension('critical thinking', ct) },
+        { title: 'Problem solving', text: suggestionForDimension('problem-solving', ps) },
+        { title: 'Reasoning', text: suggestionForDimension('reasoning', rs) }
+      ];
+
+      blocks.forEach(b => {
+        const div = document.createElement('div');
+        div.className = 'feedback-block';
+        div.innerHTML = `
+          <div class="feedback-title">${b.title}</div>
+          <div class="feedback-text">${b.text}</div>
+        `;
+        container.appendChild(div);
+      });
+    }
+
+    // Panel open/close
+    const panelBackdrop = document.getElementById('panelBackdrop');
+    const panel = document.getElementById('panel');
+    const openPanelBtn = document.getElementById('openPanel');
+    const closePanelBtn = document.getElementById('closePanel');
+
+    function openPanel() {
+      // Generate demo splits
+      const ct = randomSplit();
+      const ps = randomSplit();
+      const rs = randomSplit();
+
+      createPieChart('chartCT', ct.user, ct.ai);
+      createPieChart('chartPS', ps.user, ps.ai);
+      createPieChart('chartRS', rs.user, rs.ai);
+
+      updateMetricsPage(ct, ps, rs);
+      updateFeedbackPage(ct, ps, rs);
+
+      panelBackdrop.style.display = 'flex';
+      requestAnimationFrame(() => {
+        panel.classList.add('open');
+      });
+
+      // Store latest splits for refresh button
+      panelBackdrop.dataset.ct = JSON.stringify(ct);
+      panelBackdrop.dataset.ps = JSON.stringify(ps);
+      panelBackdrop.dataset.rs = JSON.stringify(rs);
+    }
+
+    function closePanel() {
+      panel.classList.remove('open');
+      setTimeout(() => {
+        panelBackdrop.style.display = 'none';
+      }, 200);
+    }
+
+    openPanelBtn.onclick = openPanel;
+    closePanelBtn.onclick = closePanel;
+
+    panelBackdrop.onclick = (e) => {
+      if (e.target === panelBackdrop) closePanel();
+    };
+
+    // Tabs
+    const tabs = document.querySelectorAll('.tab');
+    const pages = {
+      dashboard: document.getElementById('dashboardPage'),
+      metrics: document.getElementById('metricsPage'),
+      feedback: document.getElementById('feedbackPage')
+    };
+
+    tabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        tabs.forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+
+        Object.values(pages).forEach(p => p.classList.remove('active'));
+        pages[tab.dataset.tab].classList.add('active');
+      });
+    });
+
+    // Refresh feedback button
+    document.getElementById('refreshFeedback').onclick = () => {
+      const ct = JSON.parse(panelBackdrop.dataset.ct);
+      const ps = JSON.parse(panelBackdrop.dataset.ps);
+      const rs = JSON.parse(panelBackdrop.dataset.rs);
+      updateFeedbackPage(ct, ps, rs);
+    };
+  </script>
+</body>
+</html>
