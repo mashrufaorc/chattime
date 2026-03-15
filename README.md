@@ -214,7 +214,7 @@ Future directions include:
 
 ## Demo
 
-[Watch the demo]: https://youtu.be/e-XvpDiv4WE
+[Watch the demo](https://youtu.be/e-XvpDiv4WE)
 
 ---
 
