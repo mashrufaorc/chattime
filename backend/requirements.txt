@@ -1,4 +1,6 @@
 streamlit
-openai
 pandas
 matplotlib
+pyecharts 
+streamlit-echarts
+groq
