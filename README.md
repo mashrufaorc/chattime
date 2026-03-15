@@ -5,9 +5,9 @@ Absolutely — here’s a more polished, hackathon-style `README.md` that sounds
 ````markdown
 # ChatTime AI Analyzer
 
-**ChatTime** is an AI-powered cognitive analytics tool that helps users understand **how they use AI — and how much thinking they may be offloading to it**.
+ChatTime is an AI-powered cognitive analytics tool that helps users understand how they use AI — and how much thinking they may be offloading to it.
 
-As AI tools become more integrated into daily life, people increasingly rely on them for rewriting, summarizing, brainstorming, coding, and decision support. ChatTime turns that behavior into something measurable. By analyzing prompt history through a Bloom’s Taxonomy–inspired framework, it generates an **AI Dependency Report** that shows whether a user is using AI as a helpful tool — or leaning on it as a crutch.
+As AI tools become more integrated into daily life, people increasingly rely on them for rewriting, summarizing, brainstorming, coding, and decision support. ChatTime turns that behavior into something measurable. By analyzing prompt history through a Bloom’s Taxonomy–inspired framework, it generates an AI Dependency Report** that shows whether a user is using AI as a helpful tool — or leaning on it as a crutch.
 
 ---
 
@@ -31,13 +31,13 @@ We paste emails, ask for rewrites, request summaries, and rely on AI for tasks w
 
 ChatTime analyzes a user’s prompt history and classifies each prompt into five cognitive categories:
 
-- **Repetitive**
-- **Information Retrieval**
-- **Problem Solving**
-- **Critical Thinking**
-- **Creativity**
+- Repetitive
+- Information Retrieval
+- Problem Solving
+- Critical Thinking
+- Creativity
 
-It then groups these into **AI Automation Tasks vs Human Cognitive Tasks**, computes a **Cognitive Offloading Index (COI)**, and generates a report showing:
+It then groups these into AI Automation Tasks vs Human Cognitive Tasks, computes a Cognitive Offloading Index (COI), and generates a report showing:
 
 - how much thinking the user did
 - how much thinking the AI assistant did
@@ -50,12 +50,12 @@ It then groups these into **AI Automation Tasks vs Human Cognitive Tasks**, comp
 ## Key Features
 
 - Bloom’s Taxonomy–inspired prompt classification
-- Cognitive Offloading Index (**COI**) scoring
+- Cognitive Offloading Index (COI) scoring
 - AI vs Human cognitive task breakdown
 - Insightful dependency analysis and recommendations
 - Streamlit-based interactive interface
 - Visualization layer for cognitive work distribution
-- Foundation for advanced feedback using **A/B testing** and **cosine similarity**
+- Foundation for advanced feedback using A/B testing and cosine similarity
 
 ---
 
@@ -63,31 +63,31 @@ It then groups these into **AI Automation Tasks vs Human Cognitive Tasks**, comp
 
 The ChatTime pipeline consists of the following stages:
 
-1. **Prompt Parser**  
+1. Prompt Parser 
    Cleans and segments a user’s prompt history.
 
-2. **Classification Engine**  
+2. Classification Engine  
    Uses LLM-based analysis to map prompts to cognitive categories.
 
-3. **Metric Calculation Engine**  
-   Computes percentages and the **Cognitive Offloading Index (COI)** using weighted scoring.
+3. Metric Calculation Engine  
+   Computes percentages and the Cognitive Offloading Index (COI) using weighted scoring.
 
-4. **Visualization Layer**  
+4. Visualization Layer  
    Displays AI-vs-Human cognitive work in an intuitive visual format.
 
-5. **Insight Generator**  
+5. Insight Generator  
    Produces a human-readable report with personalized feedback and recommendations.
 
 ---
 
 ## Tech Stack
 
-- **Frontend / App Interface:** Streamlit
-- **Backend:** Python
-- **LLM Inference:** Groq API
-- **Cloud Integration:** Google Cloud + Vertex AI
-- **Feedback Methods:** A/B testing, cosine similarity
-- **Design Framework:** Bloom’s Taxonomy / cognitive offloading principles
+- Frontend / App Interface: Streamlit
+- Backend: Python
+- LLM Inference: Groq API
+- Cloud Integration: Google Cloud + Vertex AI
+- Feedback Methods: A/B testing, cosine similarity
+- Design Framework: Bloom’s Taxonomy / cognitive offloading principles
 
 ---
 
